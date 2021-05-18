@@ -5,9 +5,9 @@ from teachers.models import Teacher
 DAY_OF_WEEK = [('Mon', 'Monday'),
                ('Tue', 'Tuesday'),
                ('Wed', 'Wednesday'),
-               ('Thu', 'Thusday'),
+               ('Thu', 'Thursday'),
                ('Fri', 'Friday'),
-               ('Sat', 'Satuday'),
+               ('Sat', 'Saturday'),
                ('Sun', 'Sunday')]
 
 DEVICE_STATUS = [('N', 'New'),

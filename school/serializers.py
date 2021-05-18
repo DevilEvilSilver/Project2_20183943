@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Classroom, Course, Timetable, ClassRecord
+from .models import Classroom, Course, Timetable, ClassRecord, FileManage
 from teachers.models import Teacher
 
 from teachers.serializers import TeacherSerializer
@@ -94,3 +94,11 @@ class RecordSerializer(serializers.ModelSerializer):
     def get_total_student(self, obj):
         total = obj.classroom.students.count()
         return total
+
+class FileManageSerializer(serializers.ModelSerializer):
+    teacher_id = serializers.IntegerField()
+    course_id = serializers.IntegerField()
+
+    class Meta:
+        model = FileManage
+        fields = ['id', 'name', 'file', 'study_week', 'teacher_id', 'course_id']
