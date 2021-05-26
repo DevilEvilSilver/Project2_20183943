@@ -15,12 +15,12 @@ from school.models import Classroom, Course, Timetable, FileManage
 from persons.models import Achievement
 from django.contrib.auth import get_user_model
 
-from students.serializers import StudentSerializer, StudentGradeSerializer, ParentSerializer, GradeSerializer
+from students.serializers import StudentSerializer, ParentSerializer, GradeSerializer
 from school.serializers import ClassroomSerializer, CourseSerializer, TimetableSerializer, FileManageSerializer
 from persons.serializers import AchievementSerializer
 from students.utils import get_student, get_parent, get_grade, get_conduct
 from teachers.utils import get_teacher
-from school.utils import get_classroom, get_course, get_timetable, get_record, get_file
+from school.utils import get_file
 from persons.utils import get_achievement
 
 #Account
@@ -28,8 +28,15 @@ class StudentInfoView(APIView):
 
     def get(self, request, student_pk):
         student = get_student(student_pk)
-        # if IsOwner.has_object_permission(request=request, obj=student):
         serializer = StudentSerializer(student)
+        return Response(serializer.data)
+
+class ClassroomInfoView(APIView):
+
+    def get(self, request, student_pk):
+        student = get_student(student_pk)
+        classroom = get_classroom(pk=student.classroom.id)
+        serializer = ClassroomSerializer(classroom)
         return Response(serializer.data)
 
 class PersonalInfoView(APIView):
@@ -50,29 +57,21 @@ class ParentListView(APIView):
 
     def get(self, request, student_pk):
         parent = Parent.objects.filter(students=student_pk)
-        serializer = HealthSerializer(parent, many=True)
-        return Response(serializer.data)
-
-class ParentDetailView(APIView):
-
-    def get(self, request, parent_pk):
-        parent = get_parent(parent_pk)
-        serializer = HealthSerializer(parent)
+        serializer = ParentSerializer(parent, many=True)
         return Response(serializer.data)
 
 class AchievementListView(APIView):
 
     def get(self, request, student_pk):
-        student = get_student(student_pk)
-        achievement = Achievement.objects.filter(id=student.achievements)
-        serializer = HealthSerializer(achievement, many=True)
+        achivement = Achievement.objects.filter(students=student_pk)
+        serializer = AchievementSerializer(achivement, many=True)
         return Response(serializer.data)
 
 class AchievementDetailView(APIView):
 
     def get(self, request, student_pk, achievement_pk):
         achievement = get_achievement(achievement_pk)
-        serializer = HealthSerializer(achievement)
+        serializer = AchievementSerializer(achievement)
         return Response(serializer.data)
 
 #TimeTable
@@ -88,8 +87,8 @@ class TimeTableCourseView(APIView):
 
     def get(self, request, student_pk, course_pk):
         student = get_student(student_pk)
-        timetable = Timetable.objects.filter(classroom=student.classroom).filter(course=course_pk)
-        serializer = TimetableSerializer(timetable)
+        timetable = Timetable.objects.filter(course=course_pk).filter(classroom=student.classroom)
+        serializer = TimetableSerializer(timetable, many=True)
         return Response(serializer.data)
 
 #Grade
@@ -97,7 +96,7 @@ class GradeListView(APIView):
 
     def get(self, request, student_pk, school_year, term):
         grade_list = Grade.objects.filter(student=student_pk).filter(school_year=school_year).filter(term=term)
-        serializer = GradeSerializer(grade_list)
+        serializer = GradeSerializer(grade_list, many=True)
         return Response(serializer.data)
 
 #Conduct
@@ -108,25 +107,11 @@ class ConductListView(APIView):
         serializer = ConductSerializer(conduct, many=True)
         return Response(serializer.data)
 
-class ConductDetailView(APIView):
-
-    def get(self, request, student_pk, conduct_pk):
-        conduct = get_conduct(conduct_pk)
-        serializer = ConductSerializer(conduct)
-        return Response(serializer.data)
-
 #File
 class FileListView(APIView):
 
     def get(self, request, student_pk):
         file = FileManage.objects.all()
-        serializer = FileManageSerializer(file, many=True)
-        return Response(serializer.data)
-
-class FileCourseView(APIView):
-
-    def get(self, request, student_pk, course_pk):
-        file = FileManage.objects.filter(course=course_pk)
         serializer = FileManageSerializer(file, many=True)
         return Response(serializer.data)
 
